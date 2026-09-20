@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maidan POS</title>
+<meta name="description" content="Restaurant management system: floor plan, orders, kitchen display, inventory, customers and reports. Arabic-first with an English toggle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --f-disp:"Alexandria","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,monospace;
+  --bg:#eceae5; --surface:#fffefc; --surface-2:#f4f2ee; --line:#dcd8d0;
+  --ink:#16181a; --ink-2:#4e545a; --ink-3:#7e858d;
+  --accent:#0d7350; --accent-ink:#fff; --accent-soft:#d9efe5;
+  --free:#0d7350; --free-soft:#d9efe5; --busy:#a9621a; --busy-soft:#f8ecd9;
+  --ready:#1f5fa8; --ready-soft:#dde9f8; --hot:#b23125; --hot-soft:#fadfdc;
+  --grill:#b23125; --kitchen:#a9621a; --bar:#1f5fa8;
+  --shadow:0 16px 44px rgba(20,22,25,.2);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e100f; --surface:#171a19; --surface-2:#1d211f; --line:#2a2f2c;
+    --ink:#e9ecea; --ink-2:#a6aead; --ink-3:#727b79;
+    --accent:#37c390; --accent-ink:#0b1410; --accent-soft:#12291f;
+    --free:#37c390; --free-soft:#12291f; --busy:#e0a052; --busy-soft:#2e2312;
+    --ready:#6ea8ef; --ready-soft:#13233a; --hot:#ef7b6e; --hot-soft:#331715;
+    --grill:#ef7b6e; --kitchen:#e0a052; --bar:#6ea8ef;
+    --shadow:0 16px 44px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e100f; --surface:#171a19; --surface-2:#1d211f; --line:#2a2f2c;
+  --ink:#e9ecea; --ink-2:#a6aead; --ink-3:#727b79;
+  --accent:#37c390; --accent-ink:#0b1410; --accent-soft:#12291f;
+  --free:#37c390; --free-soft:#12291f; --busy:#e0a052; --busy-soft:#2e2312;
+  --ready:#6ea8ef; --ready-soft:#13233a; --hot:#ef7b6e; --hot-soft:#331715;
+  --grill:#ef7b6e; --kitchen:#e0a052; --bar:#6ea8ef;
+  --shadow:0 16px 44px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.sp{flex:1}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;gap:14px;padding:10px clamp(12px,2.4vw,24px);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 15px/1 var(--f-disp);flex:none}
+.brand b{font:700 17px/1.1 var(--f-disp);display:block}
+.brand small{color:var(--ink-3);font-size:11.5px}
+nav{display:flex;gap:3px;overflow-x:auto;scrollbar-width:thin}
+nav button{all:unset;box-sizing:border-box;cursor:pointer;padding:8px 13px;border-radius:9px;font-weight:600;font-size:14px;color:var(--ink-2);white-space:nowrap;display:flex;align-items:center;gap:7px;transition:background-color .18s,color .18s}
+nav button:hover{background:var(--surface-2);color:var(--ink)}
+nav button[aria-current="page"]{background:var(--ink);color:var(--surface)}
+nav .pill{font-size:11.5px;background:var(--hot);color:#fff;border-radius:999px;padding:0 6px;min-width:18px;text-align:center}
+nav button[aria-current="page"] .pill{background:var(--surface);color:var(--ink)}
+.clock{font:500 14px var(--f-mono);color:var(--ink-2)}
+
+main{padding:20px clamp(12px,2.4vw,24px) 60px}
+h1{font:700 26px/1.15 var(--f-disp);margin:0 0 16px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.hd h1{margin:0}
+
+/* buttons */
+.btn{font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;transition:transform .16s var(--ease),border-color .18s,background-color .18s}
+.btn:hover{border-color:var(--ink-3)}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn.lg{padding:13px 20px;font-size:16px}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:var(--hot)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.fld{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 12px;width:100%;min-width:0}
+.fld:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.fld{resize:vertical;min-height:64px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+
+/* chips & cards */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.free{background:var(--free-soft);color:var(--free)}
+.chip.busy{background:var(--busy-soft);color:var(--busy)}
+.chip.ready{background:var(--ready-soft);color:var(--ready)}
+.chip.hot{background:var(--hot-soft);color:var(--hot)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none;display:inline-block}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.panel h2{font:700 15px/1.3 var(--f-body);margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.panel h2 .c{color:var(--ink-3);font-weight:500;font-size:13px}
+.empty{color:var(--ink-3);padding:16px 0;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat .k{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.stat .v{font:700 30px/1.15 var(--f-disp);font-variant-numeric:tabular-nums;margin-top:3px}
+.stat .s{font-size:12px;color:var(--ink-3)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;align-items:start}
+
+/* floor */
+.zones{display:flex;gap:6px;flex-wrap:wrap}
+.zones button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.zones button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px}
+.table{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:9px;min-height:132px;position:relative;transition:transform .2s var(--ease),border-color .2s,box-shadow .2s}
+.table:hover{transform:translateY(-3px);box-shadow:0 10px 24px -16px rgba(0,0,0,.4)}
+.table:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.table .no{font:700 30px/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.table .seats{font-size:12.5px;color:var(--ink-3)}
+.table.busy{border-color:var(--busy)}
+.table.ready{border-color:var(--ready);box-shadow:inset 0 0 0 1px var(--ready)}
+.table .tot{font:700 17px/1 var(--f-disp);font-variant-numeric:tabular-nums;margin-top:auto}
+.table .mins{font:500 12.5px var(--f-mono);color:var(--ink-3)}
+.table .mins.late{color:var(--hot)}
+
+/* POS order screen */
+.pos{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:14px;align-items:start}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cats button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.cats button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(154px,1fr));gap:10px}
+.item{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:6px;min-height:96px;transition:transform .16s var(--ease),border-color .18s}
+.item:hover{transform:translateY(-2px);border-color:var(--accent)}
+.item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.item b{font-size:14.5px;line-height:1.3}
+.item .p{margin-top:auto;font:700 16px/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.item .st{position:absolute}
+.item.off{opacity:.45;cursor:not-allowed}
+.item-h{display:flex;align-items:center;gap:7px;justify-content:space-between}
+.ticket{background:var(--surface);border:1px solid var(--line);border-radius:16px;position:sticky;top:76px;display:flex;flex-direction:column;max-height:calc(100dvh - 96px)}
+.ticket .th{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ticket .th b{font:700 17px/1 var(--f-disp)}
+.lines{overflow-y:auto;padding:6px 16px;flex:1;min-height:120px}
+.line{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.lines .line:first-child{border-top:0}
+.qty{display:flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.qty button{all:unset;cursor:pointer;width:26px;height:28px;display:grid;place-items:center;font-weight:700;color:var(--ink-2)}
+.qty button:hover{background:var(--surface-2);color:var(--ink)}
+.qty span{min-width:24px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+.line .nm{font-weight:600;font-size:14.5px}
+.line .note{font-size:12px;color:var(--ink-3)}
+.line .pr{font-weight:700;font-variant-numeric:tabular-nums;text-align:end}
+.line.sent .nm::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--busy);margin-inline-start:7px;vertical-align:middle}
+.line.ready .nm::after{background:var(--ready)}
+.totals{padding:12px 16px;border-top:1px solid var(--line);display:grid;gap:6px;font-size:14px}
+.totals div{display:flex;justify-content:space-between;gap:10px}
+.totals .big{font:700 22px/1.2 var(--f-disp);font-variant-numeric:tabular-nums;padding-top:6px;border-top:1px dashed var(--line);margin-top:4px}
+.tactions{padding:12px 16px;border-top:1px solid var(--line);display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.tactions .full{grid-column:1/-1}
+
+/* kitchen */
+.kds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.kcol h2{font:700 15px/1 var(--f-body);margin:0 0 10px;display:flex;justify-content:space-between;color:var(--ink-2)}
+.kcol .stack{display:grid;gap:10px}
+.kt{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c,var(--line));border-radius:12px;padding:13px 15px;display:grid;gap:8px}
+[dir="rtl"] .kt{border-left:1px solid var(--line);border-right:4px solid var(--c,var(--line))}
+.kt .kh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kt .kh b{font:700 16px/1 var(--f-disp)}
+.kt ul{margin:0;padding:0;list-style:none;display:grid;gap:5px;font-size:14.5px}
+.kt li{display:flex;gap:8px;align-items:baseline}
+.kt li b{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13.5px}
+.kt li em{font-style:normal;font-size:12.5px;color:var(--hot)}
+.kt .mins{font:500 13px var(--f-mono);color:var(--ink-3)}
+.kt .mins.late{color:var(--hot);font-weight:700}
+.kt.late{--c:var(--hot)}
+
+/* tables & lists */
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:start;font-size:12px;color:var(--ink-3);font-weight:700;letter-spacing:.03em;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--surface-2)}
+td.end,th.end{text-align:end}
+.bar2{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;min-width:90px}
+.bar2 span{display:block;height:100%;background:var(--c)}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.grow{flex:1;min-width:0}
+.meta{font-size:12.5px;color:var(--ink-3)}
+.mono{font-family:var(--f-mono);font-size:12.5px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* tickets list */
+.tks{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:12px}
+.tk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .18s var(--ease),border-color .2s}
+.tk:hover{transform:translateY(-3px);border-color:var(--accent)}
+.tk .tkh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tk b{font:700 16px/1 var(--f-disp)}
+.tk .tot{font:700 19px/1 var(--f-disp);font-variant-numeric:tabular-nums;margin-top:auto}
+
+/* chart */
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--ink-3);font:11px var(--f-body)}
+.mix{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 12px;align-items:center;font-size:14px}
+
+/* dialog */
+dialog{border:0;border-radius:16px;padding:0;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 28px));max-height:calc(100dvh - 32px);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(10,12,11,.55)}
+dialog[open]{animation:pop .22s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.985)}}
+.dh{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 20px;border-bottom:1px solid var(--line)}
+.dh h3{margin:0;font:700 19px/1.2 var(--f-disp)}
+.db{padding:18px 20px;overflow-y:auto}
+.df{display:flex;gap:8px;justify-content:flex-end;padding:13px 20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.form .full{grid-column:1/-1}
+.x{width:34px;height:34px;padding:0;font-size:20px;line-height:1}
+.pays{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.pays button{border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:12px;font-weight:700;cursor:pointer}
+.pays button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.keypad button{border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:13px;font:700 17px var(--f-mono);cursor:pointer}
+.keypad button:active{background:var(--surface-2)}
+.due{display:flex;justify-content:space-between;align-items:baseline;font:700 21px var(--f-disp);font-variant-numeric:tabular-nums;padding:12px 0}
+.change{color:var(--accent)}
+
+/* receipt */
+.receipt{background:#fff;color:#111;font-family:var(--f-mono);font-size:12.5px;line-height:1.6;padding:18px;border-radius:10px;max-width:330px;margin-inline:auto;border:1px solid var(--line)}
+.receipt h4{font:700 16px var(--f-disp);text-align:center;margin:0 0 2px}
+.receipt .c{text-align:center}
+.receipt hr{border:0;border-top:1px dashed #aaa;margin:9px 0}
+.receipt .r{display:flex;justify-content:space-between;gap:10px}
+.receipt .tot{font-weight:700;font-size:14px}
+
+#toast{position:fixed;inset-inline:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:100;padding-inline:14px}
+.t{background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:var(--shadow);animation:tin .2s ease-out}
+.t.err{background:var(--hot);color:#fff}
+.t.ok{background:var(--accent);color:var(--accent-ink)}
+@keyframes tin{from{transform:translateY(8px);opacity:.2}}
+
+@media (max-width:1050px){ .pos{grid-template-columns:minmax(0,1fr)} .ticket{position:static;max-height:none} .grid2{grid-template-columns:minmax(0,1fr)} .kds{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:560px){ .form{grid-template-columns:1fr} .top .in{gap:10px} .brand small{display:none} }
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{ body *{visibility:hidden} #dlg,#dlg *{visibility:visible} #dlg{position:absolute;inset:0;box-shadow:none;width:auto} .dh,.df{display:none} .receipt{border:0} }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div class="brand"><span class="mark" id="mark">M</span><div><b id="rname"></b><small id="rsub"></small></div></div>
+  <nav id="nav"></nav>
+  <span class="sp"></span>
+  <span class="clock" id="clock"></span>
+  <button class="btn" data-act="lang" id="langb"></button>
+</div></header>
+<main id="view"></main>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => iso(new Date());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s || '').toLowerCase().replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+const hhmm = ts => { const d = new Date(ts); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const mins = ts => Math.max(0, Math.floor((Date.now() - ts) / 60000));
+const round = n => Math.round(n * 100) / 100;
+
+/* ---------- i18n ---------- */
+const D = {
+  ar: {
+    sub: 'نظام إدارة المطعم', cur: 'ج.م', langBtn: 'English',
+    nav_floor: 'الصالة', nav_tickets: 'طلبات خارجية', nav_kitchen: 'المطبخ', nav_menu: 'المنيو', nav_stock: 'المخزن', nav_customers: 'العملاء', nav_reports: 'التقارير', nav_settings: 'الإعدادات',
+    st_free: 'فاضية', st_busy: 'مشغولة', st_ready: 'جاهز للتقديم',
+    seats: n => `${n} كراسي`, table: n => `ترابيزة ${n}`, minsAgo: n => `${n} دقيقة`,
+    s_open: 'ترابيزات مشغولة', s_ready: 'طلبات جاهزة', s_sales: 'مبيعات النهارده', s_orders: 'عدد الطلبات', s_avg: 'متوسط الفاتورة', s_low: 'أصناف تحت الحد',
+    newTake: 'طلب تيك أواي', newDelivery: 'طلب دليفري', allZones: 'الكل',
+    ord_dine: 'صالة', ord_take: 'تيك أواي', ord_delivery: 'دليفري',
+    ticket: 'الطلب', addItems: 'اختر من المنيو', emptyTicket: 'الطلب فاضي — دوس على أي صنف عشان تضيفه.',
+    subtotal: 'الإجمالي', service: n => `خدمة ${n}%`, vat: n => `ضريبة ${n}%`, delivery: 'توصيل', discount: 'خصم', total: 'الإجمالي النهائي',
+    fire: 'إرسال للمطبخ', fireN: n => `إرسال ${n} للمطبخ`, printBill: 'الفاتورة', pay: 'دفع', voidOrder: 'إلغاء الطلب', back: 'رجوع', served: 'تم التقديم',
+    note: 'ملاحظة', notePh: 'مثال: بدون بصل، سبايسي، على الجنب', remove: 'حذف',
+    k_queued: 'جديد', k_cooking: 'تحت التحضير', k_ready: 'جاهز', k_none: 'مفيش طلبات هنا دلوقتي.',
+    startCook: 'ابدأ التحضير', markReady: 'جاهز', kFor: (t) => `لـ${t}`,
+    m_cat: 'القسم', m_item: 'الصنف', m_price: 'السعر', m_station: 'المحطة', m_recipe: 'المكونات', m_avail: 'متاح', addItem: 'صنف جديد', editItem: 'تعديل الصنف', addCat: 'قسم جديد',
+    stn_grill: 'الشواية', stn_kitchen: 'المطبخ', stn_bar: 'المشروبات والحلو',
+    i_name: 'المكوّن', i_stock: 'الرصيد', i_min: 'الحد الأدنى', i_cost: 'سعر الوحدة', i_unit: 'الوحدة', receive: 'استلام بضاعة', addIng: 'مكوّن جديد', lowStock: 'تحت الحد', outStock: 'خلص',
+    u_kg: 'كجم', u_l: 'لتر', u_pc: 'قطعة',
+    c_name: 'الاسم', c_phone: 'الموبايل', c_address: 'العنوان', c_orders: 'طلبات', c_spent: 'إجمالي الصرف', c_last: 'آخر طلب', addCustomer: 'عميل جديد', searchCustomer: 'ابحث بالاسم أو الموبايل', pickCustomer: 'اختر العميل',
+    r_week: 'مبيعات آخر 7 أيام', r_type: 'حسب نوع الطلب', r_best: 'الأكثر مبيعاً', r_pay: 'طرق الدفع', r_hours: 'أوقات الذروة', r_none: 'لا توجد مبيعات في اليوم ده.',
+    set_rest: 'بيانات المطعم', set_name: 'اسم المطعم', set_phone: 'رقم التليفون', set_addr: 'العنوان', set_vat: 'الضريبة %', set_service: 'الخدمة %', set_delivery: 'رسوم التوصيل', set_lang: 'اللغة',
+    set_tables: 'الترابيزات', set_data: 'البيانات', set_dataNote: 'نسخة تجريبية: كل البيانات محفوظة في المتصفح ده فقط.', resetDemo: 'استعادة البيانات التجريبية', clearAll: 'مسح الطلبات والعملاء',
+    resetQ: 'استبدال كل البيانات بالبيانات التجريبية؟', clearQ: 'مسح كل الطلبات والعملاء؟ المنيو والمخزن هيفضلوا زي ما هما.',
+    addTable: 'ترابيزة جديدة', zone: 'المكان', z_in: 'داخلي', z_out: 'تراس', tableNo: 'رقم الترابيزة',
+    pay_cash: 'كاش', pay_card: 'فيزا', pay_instapay: 'إنستاباي', pay_vcash: 'فودافون كاش',
+    payTitle: 'تحصيل الفاتورة', due: 'المطلوب', paid: 'المدفوع', change: 'الباقي', exact: 'بالظبط', confirmPay: 'تأكيد الدفع',
+    save: 'حفظ', cancel: 'إلغاء', del: 'حذف', edit: 'تعديل', close: 'إغلاق', yes: 'تأكيد', print: 'طباعة',
+    t_fired: n => `اترسل ${n} صنف للمطبخ`, t_nothingNew: 'مفيش أصناف جديدة تترسل', t_paid: (n, x) => `اتقفل ${n} · ${x}`, t_void: 'اتلغى الطلب', t_saved: 'تم الحفظ', t_deleted: 'تم الحذف',
+    t_lowStock: n => `تنبيه: ${n} قرب يخلص`, t_outStock: n => `${n} خلص من المخزن`, t_ready: n => `${n} جاهز للتقديم`, t_served: 'اتقدم للعميل',
+    voidQ: 'إلغاء الطلب ده بالكامل؟', delItemQ: n => `حذف ${n} من المنيو؟`, delTableQ: n => `حذف ترابيزة ${n}؟`, tableBusy: 'الترابيزة عليها طلب مفتوح',
+    receiveTitle: 'استلام بضاعة', qty: 'الكمية', noCustomer: 'بدون عميل', customer: 'العميل', address: 'العنوان', orderFor: 'الطلب لـ',
+    receiptThanks: 'شكراً لزيارتكم', receiptOrder: 'طلب', receiptTable: 'ترابيزة', receiptCashier: 'الكاشير', cashier: 'أحمد (كاشير)',
+    noOrders: 'مفيش طلبات خارجية مفتوحة.', openTickets: 'طلبات مفتوحة',
+  },
+  en: {
+    sub: 'Restaurant management', cur: 'EGP', langBtn: 'العربية',
+    nav_floor: 'Floor', nav_tickets: 'Takeaway', nav_kitchen: 'Kitchen', nav_menu: 'Menu', nav_stock: 'Inventory', nav_customers: 'Customers', nav_reports: 'Reports', nav_settings: 'Settings',
+    st_free: 'Free', st_busy: 'Occupied', st_ready: 'Ready to serve',
+    seats: n => `${n} seats`, table: n => `Table ${n}`, minsAgo: n => `${n} min`,
+    s_open: 'Tables occupied', s_ready: 'Orders ready', s_sales: 'Sales today', s_orders: 'Orders', s_avg: 'Average bill', s_low: 'Items below par',
+    newTake: 'New takeaway', newDelivery: 'New delivery', allZones: 'All',
+    ord_dine: 'Dine-in', ord_take: 'Takeaway', ord_delivery: 'Delivery',
+    ticket: 'Order', addItems: 'Pick from the menu', emptyTicket: 'Nothing on this ticket yet — tap any dish to add it.',
+    subtotal: 'Subtotal', service: n => `Service ${n}%`, vat: n => `VAT ${n}%`, delivery: 'Delivery', discount: 'Discount', total: 'Total',
+    fire: 'Send to kitchen', fireN: n => `Send ${n} to kitchen`, printBill: 'Bill', pay: 'Pay', voidOrder: 'Void order', back: 'Back', served: 'Served',
+    note: 'Note', notePh: 'e.g. no onions, extra spicy, on the side', remove: 'Remove',
+    k_queued: 'New', k_cooking: 'Cooking', k_ready: 'Ready', k_none: 'Nothing here right now.',
+    startCook: 'Start cooking', markReady: 'Ready', kFor: t => `for ${t}`,
+    m_cat: 'Section', m_item: 'Dish', m_price: 'Price', m_station: 'Station', m_recipe: 'Ingredients', m_avail: 'Available', addItem: 'New dish', editItem: 'Edit dish', addCat: 'New section',
+    stn_grill: 'Grill', stn_kitchen: 'Kitchen', stn_bar: 'Drinks & desserts',
+    i_name: 'Ingredient', i_stock: 'In stock', i_min: 'Par level', i_cost: 'Unit cost', i_unit: 'Unit', receive: 'Receive stock', addIng: 'New ingredient', lowStock: 'Below par', outStock: 'Out',
+    u_kg: 'kg', u_l: 'L', u_pc: 'pcs',
+    c_name: 'Name', c_phone: 'Mobile', c_address: 'Address', c_orders: 'Orders', c_spent: 'Total spent', c_last: 'Last order', addCustomer: 'New customer', searchCustomer: 'Search by name or mobile', pickCustomer: 'Choose customer',
+    r_week: 'Sales, last 7 days', r_type: 'By order type', r_best: 'Best sellers', r_pay: 'Payment methods', r_hours: 'Busiest hours', r_none: 'No sales on this day.',
+    set_rest: 'Restaurant details', set_name: 'Restaurant name', set_phone: 'Phone', set_addr: 'Address', set_vat: 'VAT %', set_service: 'Service %', set_delivery: 'Delivery fee', set_lang: 'Language',
+    set_tables: 'Tables', set_data: 'Data', set_dataNote: 'Prototype: all data is saved in this browser only.', resetDemo: 'Restore sample data', clearAll: 'Clear orders & customers',
+    resetQ: 'Replace everything with the sample data?', clearQ: 'Clear all orders and customers? The menu and inventory are kept.',
+    addTable: 'New table', zone: 'Area', z_in: 'Indoor', z_out: 'Terrace', tableNo: 'Table number',
+    pay_cash: 'Cash', pay_card: 'Card', pay_instapay: 'InstaPay', pay_vcash: 'Vodafone Cash',
+    payTitle: 'Take payment', due: 'Due', paid: 'Received', change: 'Change', exact: 'Exact', confirmPay: 'Confirm payment',
+    save: 'Save', cancel: 'Cancel', del: 'Delete', edit: 'Edit', close: 'Close', yes: 'Confirm', print: 'Print',
+    t_fired: n => `${n} item(s) sent to the kitchen`, t_nothingNew: 'No new items to send', t_paid: (n, x) => `${n} closed · ${x}`, t_void: 'Order voided', t_saved: 'Saved', t_deleted: 'Deleted',
+    t_lowStock: n => `Heads up: ${n} is running low`, t_outStock: n => `${n} is out of stock`, t_ready: n => `${n} is ready to serve`, t_served: 'Served to the table',
+    voidQ: 'Void this whole order?', delItemQ: n => `Remove ${n} from the menu?`, delTableQ: n => `Delete table ${n}?`, tableBusy: 'That table has an open order',
+    receiveTitle: 'Receive stock', qty: 'Quantity', noCustomer: 'No customer', customer: 'Customer', address: 'Address', orderFor: 'Order for',
+    receiptThanks: 'Thank you for visiting', receiptOrder: 'Order', receiptTable: 'Table', receiptCashier: 'Cashier', cashier: 'Ahmed (cashier)',
+    noOrders: 'No open takeaway or delivery orders.', openTickets: 'Open tickets',
+  }
+};
+const lang = () => S.settings.lang;
+const t = (k, ...a) => { const v = D[lang()][k] ?? D.en[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
+const L = o => (o && (o[lang()] || o.ar || o.en)) || '';
+const loc = () => lang() === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB';
+const money = n => `${Math.round(n).toLocaleString('en-US')} ${t('cur')}`;
+const fmtD = s => new Intl.DateTimeFormat(loc(), { day: 'numeric', month: 'short' }).format(parse(s));
+const STATIONS = ['grill', 'kitchen', 'bar'];
+const METHODS = ['cash', 'card', 'instapay', 'vcash'];
+const VIEWS = ['floor', 'tickets', 'kitchen', 'menu', 'stock', 'customers', 'reports', 'settings'];
+
+/* ---------- state ---------- */
+const KEY = 'maidan.pos.v1';
+let S, tick = null;
+const ui = { view: 'floor', zone: 'all', cat: null, orderId: null, q: '', payMethod: 'cash', payInput: '' };
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+function load() { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) { } return seed(); }
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let x = Math.imul(a ^ a >>> 15, 1 | a); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+
+function seed() {
+  const r = rng(11), pick = a => a[Math.floor(r() * a.length)];
+  const cats = [
+    { id: 'c1', name: { ar: 'مشويات', en: 'Grills' } },
+    { id: 'c2', name: { ar: 'طواجن وشرقي', en: 'Tagines' } },
+    { id: 'c3', name: { ar: 'ساندويتشات', en: 'Sandwiches' } },
+    { id: 'c4', name: { ar: 'مقبلات', en: 'Starters' } },
+    { id: 'c5', name: { ar: 'مشروبات', en: 'Drinks' } },
+    { id: 'c6', name: { ar: 'حلو', en: 'Desserts' } },
+  ];
+  const ing = (id, ar, en, unit, stock, min, cost) => ({ id, name: { ar, en }, unit, stock, min, cost });
+  const ingredients = [
+    ing('i1', 'فراخ', 'Chicken', 'kg', 18, 10, 95), ing('i2', 'لحمة ضاني', 'Lamb', 'kg', 7, 8, 380),
+    ing('i3', 'لحمة مفرومة', 'Minced beef', 'kg', 9, 6, 300), ing('i4', 'أرز', 'Rice', 'kg', 25, 10, 35),
+    ing('i5', 'مكرونة', 'Pasta', 'kg', 14, 8, 30), ing('i6', 'طماطم', 'Tomato', 'kg', 20, 10, 18),
+    ing('i7', 'بصل', 'Onion', 'kg', 16, 8, 15), ing('i8', 'بطاطس', 'Potato', 'kg', 22, 10, 20),
+    ing('i9', 'زيت', 'Oil', 'l', 18, 8, 85), ing('i10', 'جبنة موتزاريلا', 'Mozzarella', 'kg', 3, 4, 220),
+    ing('i11', 'عيش', 'Bread', 'pc', 120, 60, 2), ing('i12', 'مانجو', 'Mango', 'kg', 7, 5, 45),
+    ing('i13', 'كولا', 'Cola', 'pc', 48, 24, 12), ing('i14', 'مياه معدنية', 'Water', 'pc', 60, 30, 5),
+    ing('i15', 'بامية', 'Okra', 'kg', 8, 5, 40), ing('i16', 'ملوخية', 'Molokhia', 'kg', 6, 4, 35),
+    ing('i17', 'لبن', 'Milk', 'l', 10, 6, 30), ing('i18', 'سكر', 'Sugar', 'kg', 15, 8, 28),
+  ];
+  const M = (id, catId, ar, en, price, station, recipe) => ({ id, catId, name: { ar, en }, price, station, recipe, available: true });
+  const items = [
+    M('m1', 'c1', 'فراخ مشوية (نص)', 'Grilled chicken (half)', 185, 'grill', [['i1', .5], ['i9', .05]]),
+    M('m2', 'c1', 'كفتة ضاني', 'Lamb kofta', 260, 'grill', [['i2', .3], ['i7', .1]]),
+    M('m3', 'c1', 'ريش ضاني', 'Lamb chops', 350, 'grill', [['i2', .4]]),
+    M('m4', 'c1', 'شيش طاووق', 'Shish tawook', 210, 'grill', [['i1', .35], ['i9', .04]]),
+    M('m5', 'c1', 'كباب لحم', 'Beef kebab', 320, 'grill', [['i3', .3]]),
+    M('m6', 'c2', 'مكرونة بشاميل', 'Pasta béchamel', 130, 'kitchen', [['i5', .2], ['i17', .2], ['i10', .08]]),
+    M('m7', 'c2', 'بامية باللحمة', 'Okra with lamb', 165, 'kitchen', [['i15', .25], ['i2', .15], ['i6', .1]]),
+    M('m8', 'c2', 'ملوخية بالفراخ', 'Molokhia with chicken', 145, 'kitchen', [['i16', .15], ['i1', .25]]),
+    M('m9', 'c2', 'كشري', 'Koshary', 60, 'kitchen', [['i4', .15], ['i5', .1], ['i6', .08]]),
+    M('m10', 'c3', 'شاورما فراخ', 'Chicken shawarma', 70, 'kitchen', [['i1', .2], ['i11', 1]]),
+    M('m11', 'c3', 'شاورما لحمة', 'Beef shawarma', 90, 'kitchen', [['i3', .18], ['i11', 1]]),
+    M('m12', 'c3', 'برجر لحمة', 'Beef burger', 95, 'grill', [['i3', .18], ['i11', 1], ['i10', .03]]),
+    M('m13', 'c3', 'حواوشي', 'Hawawshi', 75, 'kitchen', [['i3', .2], ['i11', 1]]),
+    M('m14', 'c4', 'حمص', 'Hummus', 45, 'kitchen', [['i9', .02]]),
+    M('m15', 'c4', 'بابا غنوج', 'Baba ghanoush', 50, 'kitchen', [['i9', .02]]),
+    M('m16', 'c4', 'سلطة بلدي', 'Baladi salad', 35, 'kitchen', [['i6', .15], ['i7', .05]]),
+    M('m17', 'c4', 'أرز أبيض', 'White rice', 30, 'kitchen', [['i4', .12]]),
+    M('m18', 'c4', 'بطاطس محمرة', 'Fries', 45, 'kitchen', [['i8', .25], ['i9', .05]]),
+    M('m19', 'c5', 'عصير مانجو', 'Mango juice', 50, 'bar', [['i12', .25]]),
+    M('m20', 'c5', 'عصير ليمون', 'Lemon juice', 35, 'bar', [['i18', .03]]),
+    M('m21', 'c5', 'كولا', 'Cola', 25, 'bar', [['i13', 1]]),
+    M('m22', 'c5', 'مياه معدنية', 'Water', 12, 'bar', [['i14', 1]]),
+    M('m23', 'c5', 'شاي', 'Tea', 15, 'bar', [['i18', .02]]),
+    M('m24', 'c5', 'قهوة تركي', 'Turkish coffee', 25, 'bar', [['i18', .02]]),
+    M('m25', 'c6', 'أم علي', 'Om Ali', 75, 'bar', [['i17', .2], ['i18', .05]]),
+    M('m26', 'c6', 'رز بلبن', 'Rice pudding', 55, 'bar', [['i4', .06], ['i17', .25], ['i18', .05]]),
+    M('m27', 'c6', 'كنافة', 'Kunafa', 80, 'bar', [['i18', .08], ['i17', .1]]),
+  ];
+  const tables = [];
+  [2, 4, 4, 6, 2, 4, 8, 4].forEach((s, i) => tables.push({ id: 'T' + (i + 1), no: i + 1, seats: s, zone: 'in' }));
+  [4, 4, 6, 2].forEach((s, i) => tables.push({ id: 'T' + (i + 9), no: i + 9, seats: s, zone: 'out' }));
+  const customers = [
+    { id: 'u1', name: 'أ. سيد إبراهيم', phone: '01001122334', address: 'ش الجمهورية، برج النور، الدور 3، شقة 9', notes: '' },
+    { id: 'u2', name: 'م. هبة سمير', phone: '01126677889', address: 'ش النادي، عمارة 12، الدور 1', notes: 'الجرس مش شغال — اتصل' },
+    { id: 'u3', name: 'أ. محمود فايز', phone: '01233445566', address: 'ميدان المحطة، فوق صيدلية العزبي', notes: '' },
+    { id: 'u4', name: 'أ. ندى حسام', phone: '01555667788', address: 'ش المدارس، فيلا 5', notes: '' },
+  ];
+  const orders = [];
+  let seq = 1000;
+  const mkLine = (it, qty, status, note) => ({ lid: uid(), itemId: it.id, name: { ...it.name }, price: it.price, qty, status, note: note || '', fired: status === 'new' ? null : Date.now() - Math.floor(r() * 18 + 2) * 60000 });
+  // history: 7 days of paid orders
+  for (let d = 7; d >= 1; d--) {
+    const date = addDays(today(), -d), n = 14 + Math.floor(r() * 12);
+    for (let k = 0; k < n; k++) {
+      const type = r() < .6 ? 'dine' : r() < .6 ? 'take' : 'delivery';
+      const hour = pick([12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 20, 21, 21, 22, 23]);
+      const when = parse(date).setHours(hour, Math.floor(r() * 60));
+      const lines = [];
+      for (let j = 0, c = 2 + Math.floor(r() * 4); j < c; j++) {
+        const it = pick(items); lines.push(mkLine(it, 1 + (r() < .25 ? 1 : 0), 'served'));
+      }
+      const o = { id: '#' + (++seq), type, tableId: type === 'dine' ? pick(tables).id : null, customerId: type === 'delivery' ? pick(customers).id : null, lines, status: 'paid', opened: when - 40 * 60000, closed: when, method: pick(['cash', 'cash', 'cash', 'card', 'instapay', 'vcash']), discount: 0, date };
+      orders.push(o);
+    }
+  }
+  // today's paid orders, up to the current hour
+  const nowH = new Date().getHours();
+  for (let k = 0, n = Math.max(3, (nowH - 11) * 2); k < n; k++) {
+    const type = r() < .6 ? 'dine' : r() < .6 ? 'take' : 'delivery';
+    const hour = 11 + Math.floor(r() * Math.max(1, nowH - 11));
+    const when = new Date().setHours(hour, Math.floor(r() * 60), 0, 0);
+    const lines = [];
+    for (let j = 0, c = 2 + Math.floor(r() * 4); j < c; j++) { const it = pick(items); lines.push(mkLine(it, 1, 'served')); }
+    orders.push({ id: '#' + (++seq), type, tableId: type === 'dine' ? pick(tables).id : null, customerId: type === 'delivery' ? pick(customers).id : null, lines, status: 'paid', opened: when - 35 * 60000, closed: when, method: pick(['cash', 'cash', 'card', 'instapay']), discount: 0, date: today() });
+  }
+  // open orders right now
+  const open = (tableId, type, customerId, lines, minsAgo) => orders.push({ id: '#' + (++seq), type, tableId, customerId, lines, status: 'open', opened: Date.now() - minsAgo * 60000, closed: null, method: null, discount: 0, date: today() });
+  const byId = id => items.find(x => x.id === id);
+  open('T3', 'dine', null, [mkLine(byId('m2'), 2, 'cooking'), mkLine(byId('m17'), 2, 'cooking'), mkLine(byId('m16'), 1, 'ready'), mkLine(byId('m21'), 3, 'served')], 26);
+  open('T7', 'dine', null, [mkLine(byId('m1'), 1, 'queued'), mkLine(byId('m18'), 2, 'queued'), mkLine(byId('m19'), 2, 'served'), mkLine(byId('m14'), 1, 'new')], 12);
+  open('T11', 'dine', null, [mkLine(byId('m6'), 1, 'ready'), mkLine(byId('m9'), 1, 'ready'), mkLine(byId('m22'), 2, 'served')], 38);
+  open(null, 'delivery', 'u2', [mkLine(byId('m10'), 3, 'cooking'), mkLine(byId('m18'), 1, 'cooking'), mkLine(byId('m21'), 2, 'served')], 16);
+  open(null, 'take', null, [mkLine(byId('m13'), 2, 'queued'), mkLine(byId('m23'), 2, 'new')], 5);
+  return {
+    settings: { name: 'مطعم الميدان', nameEn: 'Maidan Restaurant', lang: 'ar', phone: '01000000000', address: '', vat: 14, service: 12, deliveryFee: 25 },
+    seq, demo: true, cats, items, ingredients, tables, customers, orders,
+  };
+}
+
+/* ---------- domain ---------- */
+const getItem = id => S.items.find(x => x.id === id);
+const getIng = id => S.ingredients.find(x => x.id === id);
+const getTable = id => S.tables.find(x => x.id === id);
+const getCust = id => S.customers.find(x => x.id === id);
+const getOrder = id => S.orders.find(o => o.id === id);
+const openOrders = () => S.orders.filter(o => o.status === 'open');
+const orderOfTable = id => openOrders().find(o => o.tableId === id);
+const liveLines = o => o.lines.filter(l => ['queued', 'cooking', 'ready'].includes(l.status));
+function tableState(tb) {
+  const o = orderOfTable(tb.id);
+  if (!o) return 'free';
+  return o.lines.some(l => l.status === 'ready') ? 'ready' : 'busy';
+}
+function totals(o) {
+  const sub = o.lines.reduce((s, l) => s + l.price * l.qty, 0);
+  const service = o.type === 'dine' ? sub * S.settings.service / 100 : 0;
+  const vat = (sub + service) * S.settings.vat / 100;
+  const dlv = o.type === 'delivery' ? S.settings.deliveryFee : 0;
+  const total = Math.max(0, sub + service + vat + dlv - (o.discount || 0));
+  return { sub, service, vat, dlv, total };
+}
+const orderTitle = o => o.type === 'dine' ? t('table', getTable(o.tableId)?.no ?? '—') : t('ord_' + o.type);
+function deduct(line) {
+  const it = getItem(line.itemId); if (!it) return;
+  (it.recipe || []).forEach(([ingId, qty]) => {
+    const ing = getIng(ingId); if (!ing) return;
+    ing.stock = round(Math.max(0, ing.stock - qty * line.qty));
+    if (ing.stock <= 0) toast(t('t_outStock', L(ing.name)), 'err');
+    else if (ing.stock < ing.min) toast(t('t_lowStock', L(ing.name)));
+  });
+}
+const lowStock = () => S.ingredients.filter(i => i.stock < i.min);
+const paidOn = date => S.orders.filter(o => o.status === 'paid' && o.date === date);
+const salesOf = list => list.reduce((s, o) => s + totals(o).total, 0);
+
+/* ---------- render ---------- */
+function applyLang() {
+  const ar = lang() === 'ar';
+  document.documentElement.lang = ar ? 'ar' : 'en';
+  document.documentElement.dir = ar ? 'rtl' : 'ltr';
+}
+function render() {
+  const name = lang() === 'ar' ? S.settings.name : (S.settings.nameEn || S.settings.name);
+  $('#rname').textContent = name;
+  $('#rsub').textContent = t('sub');
+  $('#mark').textContent = name.trim()[0] || 'M';
+  $('#langb').textContent = t('langBtn');
+  const ready = openOrders().reduce((n, o) => n + (o.lines.some(l => l.status === 'ready') ? 1 : 0), 0);
+  const kq = openOrders().reduce((n, o) => n + liveLines(o).filter(l => l.status !== 'ready').length, 0);
+  $('#nav').innerHTML = VIEWS.map(v => {
+    const badge = v === 'kitchen' && kq ? `<span class="pill">${kq}</span>` : v === 'floor' && ready ? `<span class="pill">${ready}</span>` : '';
+    return `<button data-act="nav" data-id="${v}" ${ui.view === v ? 'aria-current="page"' : ''}>${t('nav_' + v)}${badge}</button>`;
+  }).join('');
+  $('#clock').textContent = hhmm(Date.now());
+  const V = { floor: vFloor, tickets: vTickets, kitchen: vKitchen, menu: vMenu, stock: vStock, customers: vCustomers, reports: vReports, settings: vSettings, order: vOrder };
+  $('#view').innerHTML = V[ui.view]();
+  const q = $('#q'); if (q) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+}
+function refresh() { save(); render(); }
+
+/* floor */
+function vFloor() {
+  const zones = ['all', 'in', 'out'];
+  const list = S.tables.filter(tb => ui.zone === 'all' || tb.zone === ui.zone).sort((a, b) => a.no - b.no);
+  const busy = S.tables.filter(tb => tableState(tb) !== 'free').length;
+  const ready = openOrders().filter(o => o.lines.some(l => l.status === 'ready')).length;
+  const paid = paidOn(today());
+  return `<div class="stats">
+    <div class="stat"><div class="k">${t('s_open')}</div><div class="v">${busy}<small style="font-size:16px;color:var(--ink-3)"> / ${S.tables.length}</small></div></div>
+    <div class="stat"><div class="k">${t('s_ready')}</div><div class="v" style="${ready ? 'color:var(--ready)' : ''}">${ready}</div></div>
+    <div class="stat"><div class="k">${t('s_sales')}</div><div class="v">${Math.round(salesOf(paid)).toLocaleString('en-US')}<small style="font-size:15px;color:var(--ink-3)"> ${t('cur')}</small></div><div class="s">${t('s_orders')}: ${paid.length}</div></div>
+    <div class="stat"><div class="k">${t('s_low')}</div><div class="v" style="${lowStock().length ? 'color:var(--hot)' : ''}">${lowStock().length}</div><div class="s">${lowStock().slice(0, 2).map(i => esc(L(i.name))).join('، ') || '—'}</div></div>
+  </div>
+  <div class="hd"><div class="zones">${zones.map(z => `<button data-act="zone" data-id="${z}" aria-pressed="${ui.zone === z}">${z === 'all' ? t('allZones') : t('z_' + z)}</button>`).join('')}</div>
+    <span class="sp"></span>
+    <button class="btn" data-act="newOrder" data-id="take">+ ${t('newTake')}</button>
+    <button class="btn pri" data-act="newOrder" data-id="delivery">+ ${t('newDelivery')}</button></div>
+  <div class="tables">${list.map(tb => {
+    const st = tableState(tb), o = orderOfTable(tb.id), m = o ? mins(o.opened) : 0;
+    return `<button class="table ${st}" data-act="openTable" data-id="${tb.id}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div class="no">${tb.no}</div><div class="seats">${t('seats', tb.seats)}</div></div><span class="chip ${st}">${t('st_' + st)}</span></div>
+      ${o ? `<div class="mins ${m > 45 ? 'late' : ''}">${t('minsAgo', m)} · ${o.lines.length} ${lang() === 'ar' ? 'صنف' : 'items'}</div><div class="tot">${money(totals(o).total)}</div>` : `<div class="tot" style="color:var(--ink-3);font-size:14px;font-weight:600">${lang() === 'ar' ? 'دوس لفتح طلب' : 'Tap to open an order'}</div>`}
+    </button>`;
+  }).join('')}</div>`;
+}
+
+/* takeaway / delivery tickets */
+function vTickets() {
+  const list = openOrders().filter(o => o.type !== 'dine').sort((a, b) => a.opened - b.opened);
+  return `<div class="hd"><h1>${t('nav_tickets')}</h1><span class="sp"></span>
+    <button class="btn" data-act="newOrder" data-id="take">+ ${t('newTake')}</button>
+    <button class="btn pri" data-act="newOrder" data-id="delivery">+ ${t('newDelivery')}</button></div>
+  ${list.length ? `<div class="tks">${list.map(o => { const c = getCust(o.customerId), m = mins(o.opened), ready = o.lines.some(l => l.status === 'ready'); return `<button class="tk" data-act="openOrder" data-id="${o.id}">
+      <div class="tkh"><b>${o.id}</b><span class="chip ${ready ? 'ready' : 'busy'}">${ready ? t('st_ready') : t('ord_' + o.type)}</span></div>
+      <div class="meta">${c ? esc(c.name) + ' · ' + esc(c.phone) : t('ord_' + o.type)}</div>
+      ${c && o.type === 'delivery' ? `<div class="meta">${esc(c.address)}</div>` : ''}
+      <div class="meta mono ${m > 45 ? 'late' : ''}">${hhmm(o.opened)} · ${t('minsAgo', m)} · ${o.lines.length}</div>
+      <div class="tot">${money(totals(o).total)}</div></button>`; }).join('')}</div>` : `<div class="panel empty">${t('noOrders')}</div>`}`;
+}
+
+/* kitchen display */
+function vKitchen() {
+  const cols = ['queued', 'cooking', 'ready'];
+  const tickets = openOrders().map(o => ({ o, lines: liveLines(o) })).filter(x => x.lines.length);
+  return `<div class="hd"><h1>${t('nav_kitchen')}</h1><span class="sp"></span><span class="meta mono">${hhmm(Date.now())}</span></div>
+  <div class="kds">${cols.map(col => {
+    const list = tickets.map(({ o, lines }) => ({ o, lines: lines.filter(l => l.status === col) })).filter(x => x.lines.length);
+    return `<div class="kcol"><h2>${t('k_' + col)} <span>${list.length}</span></h2><div class="stack">
+      ${list.length ? list.map(({ o, lines }) => {
+      const fired = Math.min(...lines.map(l => l.fired || o.opened)), m = mins(fired), late = m > 20;
+      return `<article class="kt ${late ? 'late' : ''}" style="--c:var(--${o.type === 'dine' ? 'busy' : 'ready'})">
+        <div class="kh"><b>${o.id} · ${orderTitle(o)}</b><span class="mins ${late ? 'late' : ''}">${t('minsAgo', m)}</span></div>
+        <ul>${lines.map(l => `<li><b>${l.qty}×</b><span>${esc(L(l.name))}</span>${l.note ? `<em>${esc(l.note)}</em>` : ''}</li>`).join('')}</ul>
+        ${col === 'queued' ? `<button class="btn sm pri" data-act="kStart" data-id="${o.id}">${t('startCook')}</button>`
+          : col === 'cooking' ? `<button class="btn sm pri" data-act="kReady" data-id="${o.id}">${t('markReady')}</button>`
+            : `<button class="btn sm" data-act="kServed" data-id="${o.id}">${t('served')}</button>`}
+      </article>`;
+    }).join('') : `<div class="panel empty">${t('k_none')}</div>`}
+    </div></div>`;
+  }).join('')}</div>`;
+}
+
+/* order screen */
+function vOrder() {
+  const o = getOrder(ui.orderId);
+  if (!o) { ui.view = 'floor'; return vFloor(); }
+  const cats = S.cats, cat = ui.cat && cats.some(c => c.id === ui.cat) ? ui.cat : cats[0]?.id;
+  const q = norm(ui.q);
+  const items = S.items.filter(i => (q ? (norm(L(i.name)).includes(q) || norm(i.name.en).includes(q)) : i.catId === cat));
+  const T = totals(o), c = getCust(o.customerId);
+  const newLines = o.lines.filter(l => l.status === 'new');
+  return `<div class="hd"><button class="btn ghost" data-act="nav" data-id="${o.type === 'dine' ? 'floor' : 'tickets'}">← ${t('back')}</button>
+    <h1>${o.id} · ${orderTitle(o)}</h1>
+    <span class="chip busy">${t('ord_' + o.type)}</span>
+    <span class="meta mono">${hhmm(o.opened)} · ${t('minsAgo', mins(o.opened))}</span></div>
+  <div class="pos">
+    <div>
+      <div class="hd"><input class="fld" id="q" style="max-width:300px" type="search" placeholder="${t('addItems')}" value="${esc(ui.q)}" autocomplete="off"></div>
+      ${q ? '' : `<div class="cats">${cats.map(x => `<button data-act="cat" data-id="${x.id}" aria-pressed="${x.id === cat}">${esc(L(x.name))}</button>`).join('')}</div>`}
+      <div class="items">${items.map(i => `<button class="item ${i.available ? '' : 'off'}" ${i.available ? `data-act="addLine" data-id="${i.id}"` : 'disabled'}>
+        <div class="item-h"><span class="dot" style="--c:var(--${i.station})" title="${t('stn_' + i.station)}"></span><span class="meta">${t('stn_' + i.station)}</span></div>
+        <b>${esc(L(i.name))}</b><div class="p">${i.price.toLocaleString('en-US')} <small style="font-size:12px;color:var(--ink-3)">${t('cur')}</small></div></button>`).join('')}</div>
+    </div>
+    <aside class="ticket">
+      <div class="th"><b>${t('ticket')} ${o.id}</b><span class="sp"></span>
+        ${o.type !== 'dine' ? `<button class="btn sm ghost" data-act="pickCustomer" data-id="${o.id}">${c ? esc(c.name) : t('pickCustomer')}</button>` : ''}</div>
+      <div class="lines">${o.lines.length ? o.lines.map(l => `<div class="line ${['queued', 'cooking'].includes(l.status) ? 'sent' : l.status === 'ready' ? 'ready' : ''}">
+        <div class="qty">${l.status === 'new' ? `<button data-act="qty" data-id="${l.lid}" data-n="-1">−</button><span>${l.qty}</span><button data-act="qty" data-id="${l.lid}" data-n="1">+</button>` : `<span style="padding:0 8px">${l.qty}×</span>`}</div>
+        <div><div class="nm">${esc(L(l.name))}</div>${l.note ? `<div class="note">${esc(l.note)}</div>` : ''}
+          <button class="btn sm ghost" style="padding:2px 6px;font-size:12px" data-act="lineNote" data-id="${l.lid}">${t('note')}</button>
+          ${l.status === 'new' ? `<button class="btn sm ghost danger" style="padding:2px 6px;font-size:12px" data-act="rmLine" data-id="${l.lid}">${t('remove')}</button>` : ''}</div>
+        <div class="pr">${(l.price * l.qty).toLocaleString('en-US')}</div></div>`).join('') : `<div class="empty">${t('emptyTicket')}</div>`}</div>
+      <div class="totals">
+        <div><span>${t('subtotal')}</span><b class="num">${money(T.sub)}</b></div>
+        ${T.service ? `<div><span>${t('service', S.settings.service)}</span><span class="num">${money(T.service)}</span></div>` : ''}
+        <div><span>${t('vat', S.settings.vat)}</span><span class="num">${money(T.vat)}</span></div>
+        ${T.dlv ? `<div><span>${t('delivery')}</span><span class="num">${money(T.dlv)}</span></div>` : ''}
+        ${o.discount ? `<div><span>${t('discount')}</span><span class="num">−${money(o.discount)}</span></div>` : ''}
+        <div class="big"><span>${t('total')}</span><span>${money(T.total)}</span></div>
+      </div>
+      <div class="tactions">
+        <button class="btn pri full" data-act="fire" data-id="${o.id}" ${newLines.length ? '' : 'disabled'}>${newLines.length ? t('fireN', newLines.length) : t('fire')}</button>
+        <button class="btn" data-act="bill" data-id="${o.id}">${t('printBill')}</button>
+        <button class="btn pri" data-act="payDlg" data-id="${o.id}" ${o.lines.length ? '' : 'disabled'}>${t('pay')}</button>
+        <button class="btn ghost danger full" data-act="void" data-id="${o.id}">${t('voidOrder')}</button>
+      </div>
+    </aside>
+  </div>`;
+}
+
+/* menu */
+function vMenu() {
+  return `<div class="hd"><h1>${t('nav_menu')}</h1><span class="sp"></span>
+    <button class="btn" data-act="addCat">+ ${t('addCat')}</button><button class="btn pri" data-act="addItem">+ ${t('addItem')}</button></div>
+  ${S.cats.map(c => {
+    const list = S.items.filter(i => i.catId === c.id);
+    return `<div class="panel" style="margin-bottom:14px"><h2>${esc(L(c.name))} <span class="c">${list.length}</span></h2>
+    <div class="tw" style="border:0"><table><thead><tr><th>${t('m_item')}</th><th>${t('m_station')}</th><th>${t('m_recipe')}</th><th class="end">${t('m_price')}</th><th class="end"></th></tr></thead><tbody>
+      ${list.map(i => `<tr><td><b>${esc(L(i.name))}</b>${i.available ? '' : ` <span class="chip hot">${lang() === 'ar' ? 'موقوف' : 'Off'}</span>`}</td>
+        <td><span class="dot" style="--c:var(--${i.station})"></span> ${t('stn_' + i.station)}</td>
+        <td class="meta">${(i.recipe || []).map(([id, q]) => `${esc(L(getIng(id)?.name || {}))} ${q}`).join(' · ') || '—'}</td>
+        <td class="end num"><b>${money(i.price)}</b></td>
+        <td class="end"><div class="acts" style="justify-content:flex-end"><button class="btn sm ghost" data-act="editItem" data-id="${i.id}">${t('edit')}</button><button class="btn sm ghost danger" data-act="delItem" data-id="${i.id}">${t('del')}</button></div></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  }).join('')}`;
+}
+
+/* inventory */
+function vStock() {
+  const low = lowStock();
+  return `<div class="hd"><h1>${t('nav_stock')}</h1>${low.length ? `<span class="chip hot">${low.length} ${t('lowStock')}</span>` : ''}<span class="sp"></span>
+    <button class="btn pri" data-act="addIng">+ ${t('addIng')}</button></div>
+  <div class="tw"><table><thead><tr><th>${t('i_name')}</th><th>${t('i_stock')}</th><th style="width:34%"></th><th>${t('i_min')}</th><th class="end">${t('i_cost')}</th><th class="end"></th></tr></thead><tbody>
+    ${S.ingredients.map(i => { const pct = Math.min(100, i.min ? i.stock / (i.min * 2.5) * 100 : 100), out = i.stock <= 0, lo = i.stock < i.min;
+      return `<tr><td><b>${esc(L(i.name))}</b></td>
+      <td class="num"><b style="${out ? 'color:var(--hot)' : lo ? 'color:var(--busy)' : ''}">${i.stock.toLocaleString('en-US')}</b> <span class="meta">${t('u_' + i.unit)}</span></td>
+      <td><div class="bar2"><span style="width:${pct}%;--c:${out ? 'var(--hot)' : lo ? 'var(--busy)' : 'var(--accent)'}"></span></div></td>
+      <td class="num meta">${i.min} ${t('u_' + i.unit)}${out ? ` · <span class="chip hot">${t('outStock')}</span>` : lo ? ` · <span class="chip busy">${t('lowStock')}</span>` : ''}</td>
+      <td class="end num">${money(i.cost)}</td>
+      <td class="end"><div class="acts" style="justify-content:flex-end"><button class="btn sm pri" data-act="receive" data-id="${i.id}">${t('receive')}</button><button class="btn sm ghost" data-act="editIng" data-id="${i.id}">${t('edit')}</button></div></td></tr>`; }).join('')}
+  </tbody></table></div>`;
+}
+
+/* customers */
+function vCustomers() {
+  const q = norm(ui.q);
+  const list = S.customers.filter(c => !q || norm(c.name).includes(q) || c.phone.includes(q));
+  const stat = c => { const os = S.orders.filter(o => o.customerId === c.id && o.status === 'paid'); return { n: os.length, sum: salesOf(os), last: os.map(o => o.date).sort().pop() }; };
+  return `<div class="hd"><h1>${t('nav_customers')}</h1><input class="fld" id="q" style="max-width:320px" type="search" placeholder="${t('searchCustomer')}" value="${esc(ui.q)}" autocomplete="off">
+    <span class="sp"></span><button class="btn pri" data-act="addCustomer">+ ${t('addCustomer')}</button></div>
+  ${list.length ? `<div class="tw"><table><thead><tr><th>${t('c_name')}</th><th>${t('c_phone')}</th><th>${t('c_address')}</th><th class="end">${t('c_orders')}</th><th class="end">${t('c_spent')}</th><th>${t('c_last')}</th><th class="end"></th></tr></thead><tbody>
+    ${list.map(c => { const s = stat(c); return `<tr><td><b>${esc(c.name)}</b>${c.notes ? `<div class="meta">${esc(c.notes)}</div>` : ''}</td>
+      <td><span dir="ltr" class="mono">${esc(c.phone)}</span></td><td class="meta" style="white-space:normal;max-width:280px">${esc(c.address)}</td>
+      <td class="end num">${s.n}</td><td class="end num"><b>${money(s.sum)}</b></td><td class="meta">${s.last ? fmtD(s.last) : '—'}</td>
+      <td class="end"><div class="acts" style="justify-content:flex-end"><button class="btn sm pri" data-act="orderFor" data-id="${c.id}">${t('newDelivery')}</button><button class="btn sm ghost" data-act="editCustomer" data-id="${c.id}">${t('edit')}</button></div></td></tr>`; }).join('')}
+  </tbody></table></div>` : `<div class="panel empty">—</div>`}`;
+}
+
+/* reports */
+function vReports() {
+  const paid = paidOn(today()), sales = salesOf(paid);
+  const days = [...Array(7)].map((_, i) => addDays(today(), i - 6));
+  const vals = days.map(d => salesOf(paidOn(d)));
+  const types = ['dine', 'take', 'delivery'].map(k => ({ k, v: salesOf(paid.filter(o => o.type === k)), n: paid.filter(o => o.type === k).length }));
+  const pays = METHODS.map(k => ({ k, v: salesOf(paid.filter(o => o.method === k)) })).filter(x => x.v);
+  const best = {};
+  paid.forEach(o => o.lines.forEach(l => { const b = best[l.itemId] = best[l.itemId] || { name: l.name, qty: 0, sum: 0 }; b.qty += l.qty; b.sum += l.qty * l.price; }));
+  const top = Object.values(best).sort((a, b) => b.qty - a.qty).slice(0, 6);
+  const hours = [...Array(13)].map((_, i) => ({ h: i + 11, v: paid.filter(o => new Date(o.closed).getHours() === i + 11).length }));
+  const mxT = Math.max(1, ...types.map(x => x.v)), mxP = Math.max(1, ...pays.map(x => x.v)), mxB = Math.max(1, ...top.map(x => x.qty)), mxH = Math.max(1, ...hours.map(x => x.v));
+  const bars = (list, mx, label, val, color) => `<div class="mix">${list.map(x => `<span>${label(x)}</span><div class="bar2"><span style="width:${val(x) / mx * 100}%;--c:${color}"></span></div><b class="num">${val(x) ? (typeof val(x) === 'number' && val(x) > 999 ? Math.round(val(x) / 1000) + 'k' : Math.round(val(x))) : 0}</b>`).join('')}</div>`;
+  return `<div class="hd"><h1>${t('nav_reports')}</h1></div>
+  <div class="stats">
+    <div class="stat"><div class="k">${t('s_sales')}</div><div class="v">${Math.round(sales).toLocaleString('en-US')}<small style="font-size:15px;color:var(--ink-3)"> ${t('cur')}</small></div></div>
+    <div class="stat"><div class="k">${t('s_orders')}</div><div class="v">${paid.length}</div></div>
+    <div class="stat"><div class="k">${t('s_avg')}</div><div class="v">${paid.length ? Math.round(sales / paid.length).toLocaleString('en-US') : 0}<small style="font-size:15px;color:var(--ink-3)"> ${t('cur')}</small></div></div>
+    <div class="stat"><div class="k">${t('s_low')}</div><div class="v" style="${lowStock().length ? 'color:var(--hot)' : ''}">${lowStock().length}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>${t('r_week')}</h2>${weekChart(days, vals)}</div>
+    <div class="panel"><h2>${t('r_type')}</h2>${bars(types, mxT, x => `${t('ord_' + x.k)} <span class="meta">(${x.n})</span>`, x => x.v, 'var(--accent)')}</div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="panel"><h2>${t('r_best')}</h2>${top.length ? bars(top, mxB, x => esc(L(x.name)), x => x.qty, 'var(--busy)') : `<div class="empty">${t('r_none')}</div>`}</div>
+    <div class="panel"><h2>${t('r_pay')}</h2>${pays.length ? bars(pays, mxP, x => t('pay_' + x.k), x => x.v, 'var(--ready)') : `<div class="empty">${t('r_none')}</div>`}</div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h2>${t('r_hours')}</h2>${bars(hours, mxH, x => `<span class="mono">${pad(x.h)}:00</span>`, x => x.v, 'var(--accent)')}</div>`;
+}
+function weekChart(days, vals) {
+  const mx = Math.max(100, ...vals), W = 560, H = 190, l = 38, b = 26, tp = 12, bw = (W - l - 6) / 7, y = v => tp + (H - tp - b) * (1 - v / mx);
+  let g = '';
+  for (let i = 0; i <= 2; i++) { const v = mx / 2 * i; g += `<line x1="${l}" x2="${W - 6}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${l - 6}" y="${y(v) + 4}" text-anchor="end">${Math.round(v / 1000)}k</text>`; }
+  const bars = vals.map((v, i) => { const x = l + i * bw + bw * .2, w = bw * .6, isT = i === 6;
+    return `<rect x="${x}" y="${y(v)}" width="${w}" height="${Math.max(0, y(0) - y(v))}" rx="4" fill="${isT ? 'var(--accent)' : 'var(--accent-soft)'}"/>
+      <text x="${x + w / 2}" y="${H - b + 15}" text-anchor="middle" ${isT ? 'style="fill:var(--ink);font-weight:700"' : ''}>${fmtD(days[i])}</text>`; }).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" direction="ltr" role="img" aria-label="${t('r_week')}">${g}${bars}</svg>`;
+}
+
+/* settings */
+function vSettings() {
+  return `<div class="hd"><h1>${t('nav_settings')}</h1></div>
+  <div class="grid2">
+    <form class="panel" id="f-set"><h2>${t('set_rest')}</h2><div class="form" style="margin-top:10px">
+      <label class="f">${t('set_name')}<input class="fld" name="name" required value="${esc(S.settings.name)}"></label>
+      <label class="f">${t('set_name')} (EN)<input class="fld" name="nameEn" dir="ltr" value="${esc(S.settings.nameEn || '')}"></label>
+      <label class="f">${t('set_phone')}<input class="fld" name="phone" dir="ltr" value="${esc(S.settings.phone)}"></label>
+      <label class="f">${t('set_lang')}<select class="fld" name="lang"><option value="ar" ${lang() === 'ar' ? 'selected' : ''}>العربية</option><option value="en" ${lang() === 'en' ? 'selected' : ''}>English</option></select></label>
+      <label class="f full">${t('set_addr')}<input class="fld" name="address" value="${esc(S.settings.address)}"></label>
+      <label class="f">${t('set_vat')}<input class="fld" type="number" min="0" max="100" step="0.5" name="vat" value="${S.settings.vat}"></label>
+      <label class="f">${t('set_service')}<input class="fld" type="number" min="0" max="100" step="0.5" name="service" value="${S.settings.service}"></label>
+      <label class="f">${t('set_delivery')}<input class="fld" type="number" min="0" step="5" name="deliveryFee" value="${S.settings.deliveryFee}"></label>
+      <div class="full" style="display:flex;justify-content:flex-end"><button class="btn pri">${t('save')}</button></div>
+    </div></form>
+    <div style="display:grid;gap:14px">
+      <div class="panel"><h2>${t('set_tables')} <button class="btn sm pri" data-act="addTable">+ ${t('addTable')}</button></h2>
+        <div class="tw" style="border:0"><table><tbody>
+        ${S.tables.sort((a, b) => a.no - b.no).map(tb => `<tr><td><b>${t('table', tb.no)}</b></td><td class="meta">${t('seats', tb.seats)} · ${t('z_' + tb.zone)}</td>
+          <td class="end"><button class="btn sm ghost danger" data-act="delTable" data-id="${tb.id}">${t('del')}</button></td></tr>`).join('')}
+        </tbody></table></div></div>
+      <div class="panel"><h2>${t('set_data')}</h2><p class="meta" style="font-size:14px">${t('set_dataNote')}</p>
+        <div class="acts"><button class="btn" data-act="resetDemo">${t('resetDemo')}</button><button class="btn danger" data-act="clearAll">${t('clearAll')}</button></div></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- dialogs ---------- */
+const dlg = $('#dlg');
+function show(html) { dlg.innerHTML = html; if (!dlg.open) dlg.showModal(); }
+function closeDlg() { if (dlg.open) dlg.close(); }
+const head = title => `<div class="dh"><h3>${title}</h3><button class="btn ghost x" data-act="closeDlg" aria-label="${t('close')}">×</button></div>`;
+const opts = (arr, sel) => arr.map(([v, l]) => `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(l)}</option>`).join('');
+function confirmBox(msg, fn) {
+  ui.confirmFn = fn;
+  show(`<div class="db" style="padding-top:22px;font-size:15.5px">${esc(msg)}</div><div class="df"><button class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri" data-act="confirmYes">${t('yes')}</button></div>`);
+}
+function toast(msg, kind) {
+  const el = document.createElement('div'); el.className = 't' + (kind ? ' ' + kind : ''); el.textContent = msg;
+  $('#toast').appendChild(el); setTimeout(() => el.remove(), 3000);
+}
+
+function payDlg(id) {
+  const o = getOrder(id), T = totals(o);
+  const paidNum = Number(ui.payInput || 0), change = paidNum - T.total;
+  show(`${head(t('payTitle') + ' · ' + o.id)}
+  <div class="db">
+    <div class="pays">${METHODS.map(m => `<button data-act="payMethod" data-id="${m}" aria-pressed="${ui.payMethod === m}">${t('pay_' + m)}</button>`).join('')}</div>
+    <div class="due"><span>${t('due')}</span><span>${money(T.total)}</span></div>
+    ${ui.payMethod === 'cash' ? `<label class="f">${t('paid')}<input class="fld num" id="paid" inputmode="decimal" value="${esc(ui.payInput)}" style="font-size:20px;font-weight:700"></label>
+      <div class="due"><span>${t('change')}</span><span class="${change >= 0 ? 'change' : ''}">${change >= 0 ? money(change) : '—'}</span></div>
+      <div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, '00'].map(k => `<button data-act="key" data-id="${k}">${k}</button>`).join('')}<button data-act="key" data-id="del">⌫</button></div>
+      <button class="btn block" style="margin-top:8px" data-act="key" data-id="exact">${t('exact')} · ${money(T.total)}</button>` : ''}
+  </div>
+  <div class="df"><button class="btn" data-act="closeDlg">${t('cancel')}</button>
+    <button class="btn pri" data-act="doPay" data-id="${o.id}" ${ui.payMethod === 'cash' && paidNum < T.total ? 'disabled' : ''}>${t('confirmPay')}</button></div>`);
+}
+function receiptHtml(o) {
+  const T = totals(o), c = getCust(o.customerId), name = lang() === 'ar' ? S.settings.name : (S.settings.nameEn || S.settings.name);
+  return `<div class="receipt">
+    <h4>${esc(name)}</h4>
+    <div class="c">${esc(S.settings.phone || '')}</div>
+    <div class="c">${esc(S.settings.address || '')}</div>
+    <hr>
+    <div class="r"><span>${t('receiptOrder')} ${o.id}</span><span>${hhmm(o.closed || Date.now())}</span></div>
+    <div class="r"><span>${o.type === 'dine' ? t('receiptTable') + ' ' + (getTable(o.tableId)?.no ?? '') : t('ord_' + o.type)}</span><span>${new Intl.DateTimeFormat(loc()).format(new Date())}</span></div>
+    ${c ? `<div class="r"><span>${esc(c.name)}</span><span dir="ltr">${esc(c.phone)}</span></div>` : ''}
+    <div class="r"><span>${t('receiptCashier')}</span><span>${t('cashier')}</span></div>
+    <hr>
+    ${o.lines.map(l => `<div class="r"><span>${l.qty}× ${esc(L(l.name))}</span><span>${(l.price * l.qty).toLocaleString('en-US')}</span></div>`).join('')}
+    <hr>
+    <div class="r"><span>${t('subtotal')}</span><span>${Math.round(T.sub).toLocaleString('en-US')}</span></div>
+    ${T.service ? `<div class="r"><span>${t('service', S.settings.service)}</span><span>${Math.round(T.service).toLocaleString('en-US')}</span></div>` : ''}
+    <div class="r"><span>${t('vat', S.settings.vat)}</span><span>${Math.round(T.vat).toLocaleString('en-US')}</span></div>
+    ${T.dlv ? `<div class="r"><span>${t('delivery')}</span><span>${Math.round(T.dlv).toLocaleString('en-US')}</span></div>` : ''}
+    <div class="r tot"><span>${t('total')}</span><span>${Math.round(T.total).toLocaleString('en-US')} ${t('cur')}</span></div>
+    ${o.method ? `<div class="r"><span>${t('pay_' + o.method)}</span><span></span></div>` : ''}
+    <hr>
+    <div class="c">${t('receiptThanks')}</div>
+  </div>`;
+}
+const billDlg = id => show(`${head(t('printBill'))}<div class="db">${receiptHtml(getOrder(id))}</div>
+  <div class="df"><button class="btn" data-act="closeDlg">${t('close')}</button><button class="btn pri" data-act="print">${t('print')}</button></div>`);
+
+function itemForm(it) {
+  it = it || { name: { ar: '', en: '' }, price: 0, catId: S.cats[0]?.id, station: 'kitchen', recipe: [], available: true };
+  show(`${head(t(it.id ? 'editItem' : 'addItem'))}<form id="f-item" data-id="${it.id || ''}"><div class="db"><div class="form">
+    <label class="f">${lang() === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}<input class="fld" name="ar" required dir="rtl" value="${esc(it.name.ar)}"></label>
+    <label class="f">${lang() === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'}<input class="fld" name="en" dir="ltr" value="${esc(it.name.en)}"></label>
+    <label class="f">${t('m_cat')}<select class="fld" name="catId">${opts(S.cats.map(c => [c.id, L(c.name)]), it.catId)}</select></label>
+    <label class="f">${t('m_station')}<select class="fld" name="station">${opts(STATIONS.map(s => [s, t('stn_' + s)]), it.station)}</select></label>
+    <label class="f">${t('m_price')}<input class="fld" type="number" min="0" step="5" name="price" required value="${it.price}"></label>
+    <label class="f">${t('m_avail')}<select class="fld" name="available">${opts([['1', lang() === 'ar' ? 'متاح' : 'Yes'], ['0', lang() === 'ar' ? 'موقوف' : 'No']], it.available ? '1' : '0')}</select></label>
+    <div class="full"><div class="meta" style="margin-bottom:6px">${t('m_recipe')}</div>
+      ${S.ingredients.map(i => { const r = (it.recipe || []).find(([id]) => id === i.id);
+        return `<label style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="flex:1">${esc(L(i.name))} <span class="meta">${t('u_' + i.unit)}</span></span>
+        <input class="fld" style="width:110px" type="number" min="0" step="0.01" name="r_${i.id}" value="${r ? r[1] : ''}" placeholder="0"></label>`; }).join('')}
+    </div>
+  </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`);
+}
+function ingForm(i) {
+  i = i || { name: { ar: '', en: '' }, unit: 'kg', stock: 0, min: 0, cost: 0 };
+  show(`${head(t(i.id ? 'edit' : 'addIng'))}<form id="f-ing" data-id="${i.id || ''}"><div class="db"><div class="form">
+    <label class="f">${lang() === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}<input class="fld" name="ar" required dir="rtl" value="${esc(i.name.ar)}"></label>
+    <label class="f">${lang() === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'}<input class="fld" name="en" dir="ltr" value="${esc(i.name.en)}"></label>
+    <label class="f">${t('i_unit')}<select class="fld" name="unit">${opts([['kg', t('u_kg')], ['l', t('u_l')], ['pc', t('u_pc')]], i.unit)}</select></label>
+    <label class="f">${t('i_stock')}<input class="fld" type="number" min="0" step="0.1" name="stock" value="${i.stock}"></label>
+    <label class="f">${t('i_min')}<input class="fld" type="number" min="0" step="0.1" name="min" value="${i.min}"></label>
+    <label class="f">${t('i_cost')}<input class="fld" type="number" min="0" step="1" name="cost" value="${i.cost}"></label>
+  </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`);
+}
+function customerForm(c, then) {
+  c = c || { name: '', phone: '', address: '', notes: '' };
+  ui.afterCustomer = then || null;
+  show(`${head(t(c.id ? 'edit' : 'addCustomer'))}<form id="f-cust" data-id="${c.id || ''}"><div class="db"><div class="form">
+    <label class="f full">${t('c_name')}<input class="fld" name="name" required value="${esc(c.name)}"></label>
+    <label class="f full">${t('c_phone')}<input class="fld" name="phone" dir="ltr" inputmode="tel" required value="${esc(c.phone)}"></label>
+    <label class="f full">${t('c_address')}<input class="fld" name="address" value="${esc(c.address)}"></label>
+    <label class="f full">${t('note')}<input class="fld" name="notes" value="${esc(c.notes)}"></label>
+  </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`);
+}
+function pickCustomerDlg(orderId) {
+  show(`${head(t('pickCustomer'))}<div class="db">
+    <div style="display:grid;gap:8px">${S.customers.map(c => `<button class="btn block" style="justify-content:flex-start;text-align:start" data-act="setCustomer" data-id="${orderId}" data-c="${c.id}">
+      <span style="flex:1"><b>${esc(c.name)}</b><br><span class="meta" dir="ltr">${esc(c.phone)}</span></span></button>`).join('')}</div>
+  </div><div class="df"><button class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri" data-act="addCustomerFor" data-id="${orderId}">+ ${t('addCustomer')}</button></div>`);
+}
+
+/* ---------- actions ---------- */
+function newOrder(type, tableId, customerId) {
+  const o = { id: '#' + (++S.seq), type, tableId: tableId || null, customerId: customerId || null, lines: [], status: 'open', opened: Date.now(), closed: null, method: null, discount: 0, date: today() };
+  S.orders.push(o); ui.orderId = o.id; ui.view = 'order'; ui.q = ''; refresh();
+  return o;
+}
+const A = {
+  nav: id => { ui.view = id; ui.q = ''; refresh(); window.scrollTo(0, 0); },
+  lang: () => { S.settings.lang = lang() === 'ar' ? 'en' : 'ar'; applyLang(); refresh(); },
+  zone: id => { ui.zone = id; render(); },
+  cat: id => { ui.cat = id; render(); },
+  closeDlg: () => closeDlg(),
+  confirmYes: () => { const f = ui.confirmFn; ui.confirmFn = null; f && f(); },
+  openTable: id => { const o = orderOfTable(id); if (o) { ui.orderId = o.id; ui.view = 'order'; ui.q = ''; refresh(); } else newOrder('dine', id); },
+  openOrder: id => { ui.orderId = id; ui.view = 'order'; ui.q = ''; refresh(); },
+  newOrder: type => { if (type === 'delivery' && !S.customers.length) return customerForm(null, c => newOrder('delivery', null, c.id)); newOrder(type); },
+  orderFor: id => newOrder('delivery', null, id),
+  addLine: id => {
+    const o = getOrder(ui.orderId), it = getItem(id); if (!o || !it) return;
+    const ex = o.lines.find(l => l.itemId === id && l.status === 'new' && !l.note);
+    if (ex) ex.qty++; else o.lines.push({ lid: uid(), itemId: id, name: { ...it.name }, price: it.price, qty: 1, status: 'new', note: '', fired: null });
+    refresh();
+  },
+  qty: (id, el) => {
+    const o = getOrder(ui.orderId), l = o.lines.find(x => x.lid === id); if (!l) return;
+    l.qty += Number(el.dataset.n);
+    if (l.qty <= 0) o.lines = o.lines.filter(x => x.lid !== id);
+    refresh();
+  },
+  rmLine: id => { const o = getOrder(ui.orderId); o.lines = o.lines.filter(l => l.lid !== id); refresh(); },
+  lineNote: id => {
+    const o = getOrder(ui.orderId), l = o.lines.find(x => x.lid === id);
+    show(`${head(t('note') + ' · ' + L(l.name))}<form id="f-note" data-id="${id}"><div class="db">
+      <label class="f">${t('note')}<input class="fld" name="note" value="${esc(l.note)}" placeholder="${t('notePh')}" autofocus></label></div>
+      <div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`);
+  },
+  fire: id => {
+    const o = getOrder(id), fresh = o.lines.filter(l => l.status === 'new');
+    if (!fresh.length) return toast(t('t_nothingNew'), 'err');
+    fresh.forEach(l => { l.status = 'queued'; l.fired = Date.now(); deduct(l); });
+    toast(t('t_fired', fresh.length), 'ok'); refresh();
+  },
+  kStart: id => { getOrder(id).lines.forEach(l => { if (l.status === 'queued') l.status = 'cooking'; }); refresh(); },
+  kReady: id => { const o = getOrder(id); o.lines.forEach(l => { if (l.status === 'cooking') l.status = 'ready'; }); toast(t('t_ready', o.id + ' · ' + orderTitle(o)), 'ok'); refresh(); },
+  kServed: id => { getOrder(id).lines.forEach(l => { if (l.status === 'ready') l.status = 'served'; }); toast(t('t_served')); refresh(); },
+  bill: id => billDlg(id),
+  print: () => window.print(),
+  payDlg: id => { ui.payInput = ''; ui.payMethod = 'cash'; payDlg(id); },
+  payMethod: (id, el) => { ui.payMethod = id; payDlg(el.closest('dialog').querySelector('[data-act="doPay"]').dataset.id); },
+  key: (id, el) => {
+    const oid = el.closest('dialog').querySelector('[data-act="doPay"]').dataset.id, T = totals(getOrder(oid));
+    if (id === 'del') ui.payInput = ui.payInput.slice(0, -1);
+    else if (id === 'exact') ui.payInput = String(Math.round(T.total));
+    else ui.payInput = (ui.payInput + id).replace(/^0+(?=\d)/, '').slice(0, 7);
+    payDlg(oid);
+  },
+  doPay: id => {
+    const o = getOrder(id), T = totals(o);
+    o.lines.forEach(l => { if (l.status === 'new') { l.status = 'served'; deduct(l); } else l.status = 'served'; });
+    o.status = 'paid'; o.closed = Date.now(); o.method = ui.payMethod; o.date = today();
+    closeDlg(); toast(t('t_paid', o.id, money(T.total)), 'ok');
+    ui.view = o.type === 'dine' ? 'floor' : 'tickets'; ui.orderId = null; refresh();
+  },
+  void: id => confirmBox(t('voidQ'), () => {
+    const o = getOrder(id); S.orders = S.orders.filter(x => x.id !== id);
+    closeDlg(); toast(t('t_void')); ui.view = o.type === 'dine' ? 'floor' : 'tickets'; ui.orderId = null; refresh();
+  }),
+  pickCustomer: id => pickCustomerDlg(id),
+  setCustomer: (id, el) => { getOrder(id).customerId = el.dataset.c; closeDlg(); refresh(); },
+  addCustomerFor: id => customerForm(null, c => { getOrder(id).customerId = c.id; refresh(); }),
+  addItem: () => itemForm(), editItem: id => itemForm(getItem(id)),
+  delItem: id => { const i = getItem(id); confirmBox(t('delItemQ', L(i.name)), () => { S.items = S.items.filter(x => x.id !== id); closeDlg(); toast(t('t_deleted')); refresh(); }); },
+  addCat: () => show(`${head(t('addCat'))}<form id="f-cat"><div class="db"><div class="form">
+      <label class="f">${lang() === 'ar' ? 'الاسم (عربي)' : 'Name (Arabic)'}<input class="fld" name="ar" required dir="rtl"></label>
+      <label class="f">${lang() === 'ar' ? 'الاسم (إنجليزي)' : 'Name (English)'}<input class="fld" name="en" dir="ltr"></label>
+    </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`),
+  addIng: () => ingForm(), editIng: id => ingForm(getIng(id)),
+  receive: id => { const i = getIng(id);
+    show(`${head(t('receiveTitle') + ' · ' + L(i.name))}<form id="f-recv" data-id="${id}"><div class="db"><div class="form">
+      <label class="f">${t('qty')} (${t('u_' + i.unit)})<input class="fld" type="number" min="0" step="0.1" name="qty" required autofocus></label>
+      <label class="f">${t('i_cost')}<input class="fld" type="number" min="0" step="1" name="cost" value="${i.cost}"></label>
+      <div class="full meta">${t('i_stock')}: ${i.stock} ${t('u_' + i.unit)}</div>
+    </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`); },
+  addCustomer: () => customerForm(), editCustomer: id => customerForm(getCust(id)),
+  addTable: () => show(`${head(t('addTable'))}<form id="f-table"><div class="db"><div class="form">
+      <label class="f">${t('tableNo')}<input class="fld" type="number" min="1" name="no" required value="${Math.max(0, ...S.tables.map(x => x.no)) + 1}"></label>
+      <label class="f">${lang() === 'ar' ? 'عدد الكراسي' : 'Seats'}<input class="fld" type="number" min="1" name="seats" required value="4"></label>
+      <label class="f full">${t('zone')}<select class="fld" name="zone">${opts([['in', t('z_in')], ['out', t('z_out')]], 'in')}</select></label>
+    </div></div><div class="df"><button type="button" class="btn" data-act="closeDlg">${t('cancel')}</button><button class="btn pri">${t('save')}</button></div></form>`),
+  delTable: id => { const tb = getTable(id); if (orderOfTable(id)) return toast(t('tableBusy'), 'err');
+    confirmBox(t('delTableQ', tb.no), () => { S.tables = S.tables.filter(x => x.id !== id); closeDlg(); toast(t('t_deleted')); refresh(); }); },
+  resetDemo: () => confirmBox(t('resetQ'), () => { const lg = lang(); S = seed(); S.settings.lang = lg; closeDlg(); ui.view = 'floor'; refresh(); }),
+  clearAll: () => confirmBox(t('clearQ'), () => { S.orders = []; S.customers = []; S.demo = false; closeDlg(); toast(t('t_deleted')); refresh(); }),
+};
+const FORMS = {
+  'f-item': (d, id) => {
+    const recipe = S.ingredients.map(i => [i.id, Number(d['r_' + i.id] || 0)]).filter(([, q]) => q > 0);
+    const v = { name: { ar: d.ar.trim(), en: d.en.trim() || d.ar.trim() }, catId: d.catId, station: d.station, price: Number(d.price), available: d.available === '1', recipe };
+    if (id) Object.assign(getItem(id), v); else S.items.push({ id: 'm' + uid(), ...v });
+    closeDlg(); toast(t('t_saved')); refresh();
+  },
+  'f-cat': d => { S.cats.push({ id: 'c' + uid(), name: { ar: d.ar.trim(), en: d.en.trim() || d.ar.trim() } }); closeDlg(); toast(t('t_saved')); refresh(); },
+  'f-ing': (d, id) => {
+    const v = { name: { ar: d.ar.trim(), en: d.en.trim() || d.ar.trim() }, unit: d.unit, stock: Number(d.stock), min: Number(d.min), cost: Number(d.cost) };
+    if (id) Object.assign(getIng(id), v); else S.ingredients.push({ id: 'i' + uid(), ...v });
+    closeDlg(); toast(t('t_saved')); refresh();
+  },
+  'f-recv': (d, id) => { const i = getIng(id); i.stock = round(i.stock + Number(d.qty || 0)); i.cost = Number(d.cost || i.cost); closeDlg(); toast(t('t_saved'), 'ok'); refresh(); },
+  'f-cust': (d, id) => {
+    const v = { name: d.name.trim(), phone: d.phone.trim(), address: d.address.trim(), notes: d.notes.trim() };
+    let c;
+    if (id) { c = getCust(id); Object.assign(c, v); } else { c = { id: 'u' + uid(), ...v }; S.customers.push(c); }
+    closeDlg(); toast(t('t_saved'));
+    const then = ui.afterCustomer; ui.afterCustomer = null;
+    if (then) then(c); else refresh();
+  },
+  'f-note': (d, id) => { const o = getOrder(ui.orderId), l = o.lines.find(x => x.lid === id); l.note = d.note.trim(); closeDlg(); refresh(); },
+  'f-table': d => { S.tables.push({ id: 'T' + uid(), no: Number(d.no), seats: Number(d.seats), zone: d.zone }); closeDlg(); toast(t('t_saved')); refresh(); },
+  'f-set': d => {
+    Object.assign(S.settings, { name: d.name.trim(), nameEn: d.nameEn.trim(), phone: d.phone.trim(), address: d.address.trim(), vat: Number(d.vat), service: Number(d.service), deliveryFee: Number(d.deliveryFee), lang: d.lang });
+    applyLang(); toast(t('t_saved')); refresh();
+  },
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = A[el.dataset.act]; if (fn) { e.preventDefault(); fn(el.dataset.id, el, e); }
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target, fn = FORMS[f.id];
+  if (fn) fn(Object.fromEntries(new FormData(f)), f.dataset.id);
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { ui.q = e.target.value; render(); }
+  else if (e.target.id === 'paid') { ui.payInput = e.target.value.replace(/[^\d.]/g, ''); }
+});
+dlg.addEventListener('click', e => { if (e.target === dlg) closeDlg(); });
+
+/* live clock + kitchen timers */
+setInterval(() => {
+  $('#clock').textContent = hhmm(Date.now());
+  if (['kitchen', 'floor', 'tickets'].includes(ui.view) && !dlg.open) render();
+}, 30000);
+
+/* ---------- boot ---------- */
+S = load();
+applyLang();
+render();
+</script>
+</body>
+</html>
